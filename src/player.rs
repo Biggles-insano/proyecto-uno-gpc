@@ -1,23 +1,19 @@
-//! Estado y movimiento del jugador (MVP, con y sin colisión).
-//! Mantiene posición en mundo (píxeles) y ángulo de vista (radianes).
-//! Provee utilidades de dirección y métodos de movimiento básicos.
-
 use core::f32::consts::{PI, FRAC_PI_3};
 use crate::map::Map;
 
-/// Radio de colisión del jugador en píxeles (≈ 0.3 * TILE_SIZE si TILE=40 → ~12px)
+/// Radio de colisión del jugador en píxeles
 pub const RADIUS_PX: f32 = 12.0;
 /// Margen pequeño para evitar vibraciones en bordes
 pub const EPSILON_PX: f32 = 0.75;
 
-/// Representa al jugador en el mundo.
+/// representa al jugador en el mundo.
 pub struct Player {
-    pub x: f32,       // posición X en mundo (px)
-    pub y: f32,       // posición Y en mundo (px)
-    pub angle: f32,   // orientación en radianes (0 mira a +X)
+    pub x: f32,       // posición X en mundo 
+    pub y: f32,       // posición Y en mundo 
+    pub angle: f32,   // orientación en radianes
     pub move_speed: f32, // px/seg
     pub rot_speed: f32,  // rad/seg
-    pub fov: f32,        // campo de visión en radianes (ej. ~60°)
+    pub fov: f32,        // campo de visión 
 }
 
 impl Player {
@@ -28,12 +24,11 @@ impl Player {
             y,
             angle: 0.0,
             move_speed: 160.0, // ajustable
-            rot_speed: 2.6,    // ajustable (~150°/s)
-            fov: FRAC_PI_3,    // ~60°
+            rot_speed: 2.6,    // ajustable 
+            fov: FRAC_PI_3,    
         }
     }
 
-    /// Crea un jugador usando un punto de spawn recomendado del mapa.
     pub fn from_map_spawn(map: &crate::map::Map) -> Self {
         let (sx, sy) = map.recommended_spawn();
         Self::new(sx, sy)
@@ -62,43 +57,36 @@ impl Player {
         self.normalize_angle();
     }
 
-    /// =======================
-    /// Movimiento SIN colisión
-    /// =======================
 
-    /// Avanzar hacia adelante (sin colisión).
+
+    /// Avanzar hacia adelante 
     pub fn forward(&mut self, dt: f32) {
         let (dx, dy) = self.dir();
         self.x += dx * self.move_speed * dt;
         self.y += dy * self.move_speed * dt;
     }
 
-    /// Retroceder (sin colisión).
+    /// retroceder
     pub fn backward(&mut self, dt: f32) {
         let (dx, dy) = self.dir();
         self.x -= dx * self.move_speed * dt;
         self.y -= dy * self.move_speed * dt;
     }
 
-    /// Desplazamiento lateral izquierdo (strafe) sin colisión.
+    /// Desplazamiento lateral izquierdo
     pub fn strafe_left(&mut self, dt: f32) {
         let (rx, ry) = self.right();
         self.x -= rx * self.move_speed * dt;
         self.y -= ry * self.move_speed * dt;
     }
 
-    /// Desplazamiento lateral derecho (strafe) sin colisión.
+    /// Desplazamiento lateral derecho 
     pub fn strafe_right(&mut self, dt: f32) {
         let (rx, ry) = self.right();
         self.x += rx * self.move_speed * dt;
         self.y += ry * self.move_speed * dt;
     }
 
-    /// =======================
-    /// Movimiento CON colisión
-    /// =======================
-
-    /// Intenta mover aplicando colisión (resolución por ejes X luego Y).
     pub fn try_move(&mut self, dx: f32, dy: f32, map: &Map) {
         // Mover en X
         if dx != 0.0 {

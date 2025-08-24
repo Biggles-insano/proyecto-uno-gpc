@@ -1,6 +1,3 @@
-//! Ray casting (DDA) para el MVP.
-//! Devuelve, por columna de pantalla, la distancia perpendicular al primer muro.
-
 use crate::map::{Map, TILE_SIZE, WIDTH as MAP_W, HEIGHT as MAP_H};
 use crate::player::Player;
 
@@ -10,7 +7,6 @@ pub struct RayHit {
     pub dist_px: f32,
     /// ID de pared (0 si no se encontró; en mapa cerrado siempre > 0).
     pub wall_id: u8,
-    /// true si el cruce fue con borde vertical (eje X), false si horizontal (eje Y).
     pub hit_vertical: bool,
 }
 
